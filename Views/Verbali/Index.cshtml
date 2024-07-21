@@ -1,0 +1,35 @@
+﻿@model IEnumerable<ServerPoliziaApp.Models.Verbale>
+
+@{
+    ViewData["Title"] = "Lista Verbali";
+}
+
+<h1>Lista Verbali</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Numero Verbale</th>
+            <th>Trasgressore</th>
+            <th>Violazione</th>
+            <th>Data Violazione</th>
+            <th>Importo</th>
+            <th>Punti Decurtati</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.NumeroVerbale</td>
+                <td>@item.TrasgressoreId</td>
+                <td>@item.ViolazioneId</td>
+                <td>@item.DataViolazione.ToString("yyyy-MM-dd")</td>
+                <td>@item.Importo</td>
+                <td>@item.PuntiDecurtati</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Aggiungi Verbale</a>

@@ -1,0 +1,31 @@
+﻿@model IEnumerable<ServerPoliziaApp.Models.ViolationsOver10PointsReport>
+
+@{
+    ViewData["Title"] = "Violazioni che Superano i 10 Punti";
+}
+
+<h1>Violazioni che Superano i 10 Punti</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Importo</th>
+            <th>Cognome</th>
+            <th>Nome</th>
+            <th>Data Violazione</th>
+            <th>Punti Decurtati</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Importo</td>
+                <td>@item.Cognome</td>
+                <td>@item.Nome</td>
+                <td>@item.DataViolazione.ToString("yyyy-MM-dd")</td>
+                <td>@item.PuntiDecurtati</td>
+            </tr>
+        }
+    </tbody>
+</table>

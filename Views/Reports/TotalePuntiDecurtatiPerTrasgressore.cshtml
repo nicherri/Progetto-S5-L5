@@ -1,0 +1,27 @@
+﻿@model IEnumerable<ServerPoliziaApp.Models.TotalPointsPerTransgressorReport>
+
+@{
+    ViewData["Title"] = "Totale Punti Decurtati per Trasgressore";
+}
+
+<h1>Totale Punti Decurtati per Trasgressore</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Cognome</th>
+            <th>Nome</th>
+            <th>Totale Punti</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Cognome</td>
+                <td>@item.Nome</td>
+                <td>@item.TotalePunti</td>
+            </tr>
+        }
+    </tbody>
+</table>

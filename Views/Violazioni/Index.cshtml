@@ -1,0 +1,29 @@
+﻿@model IEnumerable<ServerPoliziaApp.Models.Violazione>
+
+@{
+    ViewData["Title"] = "Lista Violazioni";
+}
+
+<h1>Lista Violazioni</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Descrizione</th>
+            <th>Importo Minimo</th>
+            <th>Punti Decurtati</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Descrizione</td>
+                <td>@item.ImportoMinimo</td>
+                <td>@item.PuntiDecurtati</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Aggiungi Violazione</a>

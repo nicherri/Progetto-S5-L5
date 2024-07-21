@@ -1,0 +1,77 @@
+:root {
+    --primary-color: #020D1F;
+    --secondary-color: #ffffff;
+    --hover-color: #007bff;
+}
+
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+#logostyle{
+    width: 4em;
+}
+
+.navbar, .footer {
+    background-color: var(--primary-color);
+}
+
+.nav-link {
+    color: var(--secondary-color) !important;
+}
+
+    .nav-link:hover {
+        color: var(--hover-color) !important;
+    }
+
+.footer .text-white {
+    color: var(--secondary-color) !important;
+}
+
+.table th, .table td {
+    border: 1px solid var(--primary-color);
+}
+
+.table tbody tr:hover {
+    background-color: #B4B7BF; /* Lighter version of primary color */
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+    .btn-primary:hover {
+        background-color: var(--hover-color);
+        border-color: var(--hover-color);
+    }
+
+/* New styles for navbar-toggler and navbar-toggler-icon */
+.navbar-toggler {
+    border-color: var(--secondary-color);
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%28255, 255, 255, 1%29' stroke-width='2' linecap='round' linejoin='round' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}

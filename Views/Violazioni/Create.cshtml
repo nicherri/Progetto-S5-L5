@@ -1,0 +1,32 @@
+﻿@model ServerPoliziaApp.Models.Violazione
+
+@{
+    ViewData["Title"] = "Aggiungi Violazione";
+}
+
+<h1>Aggiungi Violazione</h1>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="Descrizione" class="control-label"></label>
+        <input asp-for="Descrizione" class="form-control" />
+        <span asp-validation-for="Descrizione" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ImportoMinimo" class="control-label"></label>
+        <input asp-for="ImportoMinimo" class="form-control" />
+        <span asp-validation-for="ImportoMinimo" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="PuntiDecurtati" class="control-label"></label>
+        <input asp-for="PuntiDecurtati" class="form-control" />
+        <span asp-validation-for="PuntiDecurtati" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Salva" class="btn btn-primary" />
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Torna alla Lista</a>
+</div>

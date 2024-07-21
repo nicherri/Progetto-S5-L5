@@ -1,0 +1,42 @@
+﻿@model ServerPoliziaApp.Models.Verbale
+
+@{
+    ViewData["Title"] = "Aggiungi Verbale";
+}
+
+<h1>Aggiungi Verbale</h1>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="TrasgressoreId" class="control-label">Trasgressore</label>
+        <select asp-for="TrasgressoreId" class="form-control" asp-items="@(new SelectList(ViewBag.Trasgressori, "Id", "Cognome"))"></select>
+        <span asp-validation-for="TrasgressoreId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ViolazioneId" class="control-label">Violazione</label>
+        <select asp-for="ViolazioneId" class="form-control" asp-items="@(new SelectList(ViewBag.Violazioni, "Id", "Descrizione"))"></select>
+        <span asp-validation-for="ViolazioneId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DataViolazione" class="control-label"></label>
+        <input asp-for="DataViolazione" class="form-control" />
+        <span asp-validation-for="DataViolazione" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Importo" class="control-label"></label>
+        <input asp-for="Importo" class="form-control" />
+        <span asp-validation-for="Importo" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="PuntiDecurtati" class="control-label"></label>
+        <input asp-for="PuntiDecurtati" class="form-control" />
+        <span asp-validation-for="PuntiDecurtati" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Salva" class="btn btn-primary" />
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Torna alla Lista</a>
+</div>

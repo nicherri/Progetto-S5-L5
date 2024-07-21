@@ -1,0 +1,25 @@
+﻿@model IEnumerable<ServerPoliziaApp.Models.ViolationsOver400EuroReport>
+
+@{
+    ViewData["Title"] = "Violazioni con Importo Maggiore di 400 Euro";
+}
+
+<h1>Violazioni con Importo Maggiore di 400 Euro</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Descrizione</th>
+            <th>Importo Minimo</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Descrizione</td>
+                <td>@item.ImportoMinimo</td>
+            </tr>
+        }
+    </tbody>
+</table>
