@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ServerPoliziaApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using ServerPoliziaApp.Models;
+using System.Linq;
 
 namespace ServerPoliziaApp.Controllers
 {
@@ -17,128 +18,202 @@ namespace ServerPoliziaApp.Controllers
 
         public IActionResult Index()
         {
-            var verbali = new List<Verbale>();
+            var verbali = new List<VerbaleViewModel>();
+
+            string query = @"
+                SELECT 
+                    Verbali.NumeroVerbale, 
+                    Trasgressori.Nome AS NomeTrasgressore, 
+                    Trasgressori.Cognome AS CognomeTrasgressore, 
+                    Violazioni.Descrizione AS DescrizioneViolazione, 
+                    Verbali.DataViolazione, 
+                    Verbali.Importo, 
+                    Verbali.PuntiDecurtati 
+                FROM Verbali
+                JOIN Trasgressori ON Verbali.TrasgressoreId = Trasgressori.Id
+                JOIN Violazioni ON Verbali.ViolazioneId = Violazioni.Id";
+
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string sql = "SELECT * FROM Verbali";
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                SqlCommand command = new SqlCommand(query, conn);
                 conn.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        verbali.Add(new Verbale
+                        verbali.Add(new VerbaleViewModel
                         {
-                            NumeroVerbale = (string)reader["NumeroVerbale"],
-                            TrasgressoreId = (int)reader["TrasgressoreId"],
-                            ViolazioneId = (int)reader["ViolazioneId"],
-                            DataViolazione = (DateTime)reader["DataViolazione"],
-                            Importo = (decimal)reader["Importo"],
-                            PuntiDecurtati = (int)reader["PuntiDecurtati"]
+                            NumeroVerbale = reader.GetString(0),
+                            NomeTrasgressore = reader.GetString(1),
+                            CognomeTrasgressore = reader.GetString(2),
+                            DescrizioneViolazione = reader.GetString(3),
+                            DataViolazione = reader.GetDateTime(4),
+                            Importo = reader.GetDecimal(5),
+                            PuntiDecurtati = reader.GetInt32(6)
                         });
                     }
                 }
+                conn.Close();
             }
+
             return View(verbali);
         }
 
         public IActionResult Create()
         {
-            ViewBag.Trasgressori = GetTrasgressori();
             ViewBag.Violazioni = GetViolazioni();
-            return View();
+            ViewBag.Trasgressori = GetTrasgressori();
+            return View(new Verbale { NumeroVerbale = GenerateUniqueVerbaleNumber() });
         }
 
         [HttpPost]
         public IActionResult Create(Verbale verbale)
         {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Trasgressori = GetTrasgressori();
-                ViewBag.Violazioni = GetViolazioni();
-                return View(verbale);
-            }
+            Console.WriteLine("Inizio metodo Create [HttpPost]");
+            Console.WriteLine($"NumeroVerbale: {verbale.NumeroVerbale}");
+            Console.WriteLine($"TrasgressoreNome: {verbale.TrasgressoreNome}");
+            Console.WriteLine($"TrasgressoreCognome: {verbale.TrasgressoreCognome}");
+            Console.WriteLine($"ViolazioneId: {verbale.ViolazioneId}");
+            Console.WriteLine($"DataViolazione: {verbale.DataViolazione}");
+            Console.WriteLine($"Importo: {verbale.Importo}");
+            Console.WriteLine($"PuntiDecurtati: {verbale.PuntiDecurtati}");
 
-            verbale.NumeroVerbale = GenerateNumeroVerbale();
-
-            using (SqlConnection conn = new SqlConnection(_connectionString))
+            if (ModelState.IsValid)
             {
-                string sql = "INSERT INTO Verbali (NumeroVerbale, TrasgressoreId, ViolazioneId, DataViolazione, Importo, PuntiDecurtati) VALUES (@NumeroVerbale, @TrasgressoreId, @ViolazioneId, @DataViolazione, @Importo, @PuntiDecurtati)";
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@NumeroVerbale", verbale.NumeroVerbale);
-                cmd.Parameters.AddWithValue("@TrasgressoreId", verbale.TrasgressoreId);
-                cmd.Parameters.AddWithValue("@ViolazioneId", verbale.ViolazioneId);
-                cmd.Parameters.AddWithValue("@DataViolazione", verbale.DataViolazione.ToString("yyyy-MM-ddTHH:mm:ss"));
-                cmd.Parameters.AddWithValue("@Importo", verbale.Importo);
-                cmd.Parameters.AddWithValue("@PuntiDecurtati", verbale.PuntiDecurtati);
-                conn.Open();
-                cmd.ExecuteNonQuery();
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        private string GenerateNumeroVerbale()
-        {
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var random = new Random();
-            var result = new char[10];
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = chars[random.Next(chars.Length)];
-            }
-            return new string(result);
-        }
-
-        private List<Trasgressore> GetTrasgressori()
-        {
-            var trasgressori = new List<Trasgressore>();
-            using (SqlConnection conn = new SqlConnection(_connectionString))
-            {
-                string sql = "SELECT * FROM Trasgressori";
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                conn.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                verbale.TrasgressoreId = GetTrasgressoreId(verbale.TrasgressoreNome, verbale.TrasgressoreCognome);
+                Console.WriteLine($"TrasgressoreId dopo GetTrasgressoreId: {verbale.TrasgressoreId}");
+                if (verbale.TrasgressoreId == 0)
                 {
-                    while (reader.Read())
+                    ModelState.AddModelError("", "Trasgressore non trovato.");
+                    ViewBag.Violazioni = GetViolazioni();
+                    ViewBag.Trasgressori = GetTrasgressori();
+                    return View(verbale);
+                }
+
+                string query = "INSERT INTO Verbali (NumeroVerbale, TrasgressoreId, ViolazioneId, DataViolazione, Importo, PuntiDecurtati) VALUES (@NumeroVerbale, @TrasgressoreId, @ViolazioneId, @DataViolazione, @Importo, @PuntiDecurtati)";
+                using (SqlConnection conn = new SqlConnection(_connectionString))
+                {
+                    SqlCommand command = new SqlCommand(query, conn);
+                    command.Parameters.AddWithValue("@NumeroVerbale", verbale.NumeroVerbale);
+                    command.Parameters.AddWithValue("@TrasgressoreId", verbale.TrasgressoreId);
+                    command.Parameters.AddWithValue("@ViolazioneId", verbale.ViolazioneId);
+                    command.Parameters.AddWithValue("@DataViolazione", verbale.DataViolazione);
+                    command.Parameters.AddWithValue("@Importo", verbale.Importo);
+                    command.Parameters.AddWithValue("@PuntiDecurtati", verbale.PuntiDecurtati);
+
+                    Console.WriteLine($"Query: {command.CommandText}");
+                    Console.WriteLine($"NumeroVerbale: {verbale.NumeroVerbale}");
+                    Console.WriteLine($"TrasgressoreId: {verbale.TrasgressoreId}");
+                    Console.WriteLine($"ViolazioneId: {verbale.ViolazioneId}");
+                    Console.WriteLine($"DataViolazione: {verbale.DataViolazione}");
+                    Console.WriteLine($"Importo: {verbale.Importo}");
+                    Console.WriteLine($"PuntiDecurtati: {verbale.PuntiDecurtati}");
+
+                    try
                     {
-                        trasgressori.Add(new Trasgressore
-                        {
-                            Id = (int)reader["Id"],
-                            Nome = (string)reader["Nome"],
-                            Cognome = (string)reader["Cognome"],
-                            Indirizzo = (string)reader["Indirizzo"],
-                            Città = (string)reader["Città"],
-                            CodiceFiscale = (string)reader["CodiceFiscale"]
-                        });
+                        conn.Open();
+                        command.ExecuteNonQuery();
+                        Console.WriteLine("Verbale inserito con successo.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Errore durante l'inserimento del verbale: {ex.Message}");
+                    }
+                    finally
+                    {
+                        conn.Close();
                     }
                 }
+
+                return RedirectToAction("Index");
             }
-            return trasgressori;
+
+            ViewBag.Violazioni = GetViolazioni();
+            ViewBag.Trasgressori = GetTrasgressori();
+            return View(verbale);
+        }
+
+        private int GetTrasgressoreId(string nome, string cognome)
+        {
+            int trasgressoreId = 0;
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = "SELECT Id FROM Trasgressori WHERE Nome = @Nome AND Cognome = @Cognome";
+                SqlCommand command = new SqlCommand(query, conn);
+                command.Parameters.AddWithValue("@Nome", nome);
+                command.Parameters.AddWithValue("@Cognome", cognome);
+                conn.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        trasgressoreId = reader.GetInt32(0);
+                    }
+                }
+                conn.Close();
+            }
+            return trasgressoreId;
         }
 
         private List<Violazione> GetViolazioni()
         {
             var violazioni = new List<Violazione>();
+
+            string query = "SELECT Id, Descrizione FROM Violazioni";
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string sql = "SELECT * FROM Violazioni";
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                SqlCommand command = new SqlCommand(query, conn);
                 conn.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         violazioni.Add(new Violazione
                         {
-                            Id = (int)reader["Id"],
-                            Descrizione = (string)reader["Descrizione"],
-                            ImportoMinimo = (decimal)reader["ImportoMinimo"],
-                            PuntiDecurtati = (int)reader["PuntiDecurtati"]
+                            Id = reader.GetInt32(0),
+                            Descrizione = reader.GetString(1)
                         });
                     }
                 }
+                conn.Close();
             }
+
             return violazioni;
+        }
+
+        private List<Trasgressore> GetTrasgressori()
+        {
+            var trasgressori = new List<Trasgressore>();
+
+            string query = "SELECT Id, Nome, Cognome FROM Trasgressori";
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, conn);
+                conn.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        trasgressori.Add(new Trasgressore
+                        {
+                            Id = reader.GetInt32(0),
+                            Nome = reader.GetString(1),
+                            Cognome = reader.GetString(2)
+                        });
+                    }
+                }
+                conn.Close();
+            }
+
+            return trasgressori;
+        }
+
+        private string GenerateUniqueVerbaleNumber()
+        {
+            var random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, 10)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

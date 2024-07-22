@@ -8,9 +8,26 @@
 
 <form asp-action="Create">
     <div class="form-group">
-        <label asp-for="TrasgressoreId" class="control-label">Trasgressore</label>
-        <select asp-for="TrasgressoreId" class="form-control" asp-items="@(new SelectList(ViewBag.Trasgressori, "Id", "Cognome"))"></select>
-        <span asp-validation-for="TrasgressoreId" class="text-danger"></span>
+        <label asp-for="TrasgressoreNome" class="control-label">Nome Trasgressore</label>
+        <input asp-for="TrasgressoreNome" class="form-control" list="trasgressori" />
+        <datalist id="trasgressori">
+            @foreach (var trasgressore in (List<ServerPoliziaApp.Models.Trasgressore>)ViewBag.Trasgressori)
+            {
+                <option value="@trasgressore.Nome @trasgressore.Cognome"></option>
+            }
+        </datalist>
+        <span asp-validation-for="TrasgressoreNome" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="TrasgressoreCognome" class="control-label">Cognome Trasgressore</label>
+        <input asp-for="TrasgressoreCognome" class="form-control" list="cognomi" />
+        <datalist id="cognomi">
+            @foreach (var trasgressore in (List<ServerPoliziaApp.Models.Trasgressore>)ViewBag.Trasgressori)
+            {
+                <option value="@trasgressore.Cognome"></option>
+            }
+        </datalist>
+        <span asp-validation-for="TrasgressoreCognome" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="ViolazioneId" class="control-label">Violazione</label>
@@ -19,7 +36,7 @@
     </div>
     <div class="form-group">
         <label asp-for="DataViolazione" class="control-label"></label>
-        <input asp-for="DataViolazione" class="form-control" />
+        <input asp-for="DataViolazione" class="form-control" type="datetime-local" />
         <span asp-validation-for="DataViolazione" class="text-danger"></span>
     </div>
     <div class="form-group">

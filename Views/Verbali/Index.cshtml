@@ -1,10 +1,13 @@
-﻿@model IEnumerable<ServerPoliziaApp.Models.Verbale>
+﻿@model IEnumerable<ServerPoliziaApp.Models.VerbaleViewModel>
 
 @{
     ViewData["Title"] = "Lista Verbali";
 }
 
 <h1>Lista Verbali</h1>
+
+<a asp-action="Create" class="btn btn-primary mt-3 mb-3">Aggiungi Verbale</a>
+
 
 <table class="table">
     <thead>
@@ -22,14 +25,12 @@
         {
             <tr>
                 <td>@item.NumeroVerbale</td>
-                <td>@item.TrasgressoreId</td>
-                <td>@item.ViolazioneId</td>
-                <td>@item.DataViolazione.ToString("yyyy-MM-dd")</td>
+                <td>@item.NomeTrasgressore @item.CognomeTrasgressore</td>
+                <td>@item.DescrizioneViolazione</td>
+                <td>@item.DataViolazione.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>@item.Importo</td>
                 <td>@item.PuntiDecurtati</td>
             </tr>
         }
     </tbody>
 </table>
-
-<a asp-action="Create" class="btn btn-primary">Aggiungi Verbale</a>

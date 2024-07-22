@@ -88,26 +88,42 @@ namespace ServerPoliziaApp.Controllers
             return View(report);
         }
 
-        public IActionResult ViolazioniOltre400Euro()
+        public IActionResult ViolazioniOver400Euro()
         {
-            var report = new List<ViolationsOver400EuroReport>();
+            var report = new List<ViolazioneOver400EuroViewModel>();
+
+            string query = @"
+                SELECT 
+                    Trasgressori.Nome AS NomeTrasgressore, 
+                    Trasgressori.Cognome AS CognomeTrasgressore, 
+                    Verbali.DataViolazione, 
+                    Verbali.Importo, 
+                    Verbali.PuntiDecurtati 
+                FROM Verbali
+                JOIN Trasgressori ON Verbali.TrasgressoreId = Trasgressori.Id
+                WHERE Verbali.Importo > 400";
+
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string sql = "SELECT Descrizione, ImportoMinimo FROM Violazioni WHERE ImportoMinimo > 400";
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                SqlCommand command = new SqlCommand(query, conn);
                 conn.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        report.Add(new ViolationsOver400EuroReport
+                        report.Add(new ViolazioneOver400EuroViewModel
                         {
-                            Descrizione = (string)reader["Descrizione"],
-                            ImportoMinimo = (decimal)reader["ImportoMinimo"]
+                            NomeTrasgressore = reader.GetString(0),
+                            CognomeTrasgressore = reader.GetString(1),
+                            DataViolazione = reader.GetDateTime(2),
+                            Importo = reader.GetDecimal(3),
+                            PuntiDecurtati = reader.GetInt32(4)
                         });
                     }
                 }
+                conn.Close();
             }
+
             return View(report);
         }
     }

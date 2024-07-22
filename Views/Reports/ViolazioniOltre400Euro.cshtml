@@ -1,25 +1,33 @@
-﻿@model IEnumerable<ServerPoliziaApp.Models.ViolationsOver400EuroReport>
+﻿@model IEnumerable<ServerPoliziaApp.Models.ViolazioneOver400EuroViewModel>
 
 @{
-    ViewData["Title"] = "Violazioni con Importo Maggiore di 400 Euro";
+    ViewData["Title"] = "Violazioni Oltre 400 Euro";
 }
 
-<h1>Violazioni con Importo Maggiore di 400 Euro</h1>
+<h1>Violazioni Oltre 400 Euro</h1>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Descrizione</th>
-            <th>Importo Minimo</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td>@item.Descrizione</td>
-                <td>@item.ImportoMinimo</td>
+                <th>Nome Trasgressore</th>
+                <th>Cognome Trasgressore</th>
+                <th>Data Violazione</th>
+                <th>Importo</th>
+                <th>Punti Decurtati</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.NomeTrasgressore</td>
+                    <td>@item.CognomeTrasgressore</td>
+                    <td>@item.DataViolazione.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@item.Importo</td>
+                    <td>@item.PuntiDecurtati</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
